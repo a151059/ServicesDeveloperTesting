@@ -29,6 +29,18 @@ public class ValidingEmployeeCreateRequestsTests
 
     }
 
+    [Theory]
+    [MemberData(nameof(GetBaseLastNameSampleModels))]
+    public void LastNameCannotExceedMinimumOrMaximumLength(EmployeeCreateRequest model)
+    {
+        var validator = new EmployeeCreateRequestValidator();
+
+        var result = validator.TestValidate(model);
+
+        result.ShouldNotHaveValidationErrorFor(x => x.FirstName);
+        result.ShouldHaveValidationErrorFor(x => x.LastName);
+    }
+
 
     public static IEnumerable<object[]> GetValidCreateRequests()
     {
@@ -40,6 +52,24 @@ public class ValidingEmployeeCreateRequestsTests
         yield return new object[] {
             new EmployeeCreateRequest {
                 FirstName = new string('x',255)
+             }
+        };
+    }
+
+    public static IEnumerable<object[]> GetBaseLastNameSampleModels()
+    {
+        yield return new object[]
+        {
+            new EmployeeCreateRequest
+            {
+                FirstName="xxx",
+                LastName="xx" // has to be at least 3 letters
+            }
+        };
+        yield return new object[] {
+            new EmployeeCreateRequest {
+                FirstName = new string('x',255),
+                LastName = new string('x',257) // max of 256
              }
         };
     }
